@@ -2,15 +2,16 @@ const db = require("../database/db");
 const getAllEvents = (req, res) => {
   try {
     db.find({})
+      .projection({ _id: 0 })
       .sort({ id: 1 })
       .exec((err, doc) => {
         if (err) {
-          console.log(err);
+          res.status(500).json(err);
         }
         return res.status(200).json(doc);
       });
   } catch (error) {
-    console.log(error);
+    res.status(500).json(error);
   }
 };
 
@@ -38,7 +39,7 @@ const addEvent = (req, res) => {
     /**check if the db can find this ID */
     db.findOne({ id }, (err, document) => {
       if (err) {
-        console.log(err);
+        res.status(500).json(err);
       }
       //   if found return 400 with a message
       if (document) {
@@ -49,13 +50,13 @@ const addEvent = (req, res) => {
       /**if not found, save new data and return 200 */
       db.insert(newDoc, (err, doc) => {
         if (err) {
-          console.log(err);
+          res.status(500).json(err);
         }
         return res.status(201).json(doc);
       });
     });
   } catch (error) {
-    console.log(error);
+    res.status(500).json(error);
   }
 };
 
@@ -64,10 +65,11 @@ const getByActor = (req, res) => {
     const id = req.params.actorID;
     //
     db.find({ "actor.id": id })
+      .projection({ _id: 0 })
       .sort({ id: 1 })
       .exec((err, doc) => {
         if (err) {
-          console.log(err);
+          res.status(500).json(err);
         }
         if (doc.length > 0) {
           return res.status(200).json(doc);
@@ -75,7 +77,7 @@ const getByActor = (req, res) => {
         return res.status(404).json();
       });
   } catch (error) {
-    console.log(error);
+    res.status(500).json(error);
   }
 };
 
@@ -84,12 +86,12 @@ const eraseEvents = (req, res) => {
     /**Deleting all events in the db */
     db.remove({}, { multi: true }, (err, result) => {
       if (err) {
-        console.log(err);
+        res.status(500).json(err);
       }
       return res.status(200).json(result);
     });
   } catch (error) {
-    console.log(error);
+    res.status(500).json(error);
   }
 };
 
